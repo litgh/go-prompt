@@ -25,6 +25,7 @@ type Completer func(Document) []Suggest
 type Prompt struct {
 	in                ConsoleParser
 	buf               *Buffer
+	bufferReader      func(bufCh chan []byte, stopCh chan struct{})
 	renderer          *Render
 	executor          Executor
 	history           *History
@@ -58,7 +59,11 @@ func (p *Prompt) Run() {
 
 	bufCh := make(chan []byte, 128)
 	stopReadBufCh := make(chan struct{})
-	go p.readBuffer(bufCh, stopReadBufCh)
+	if p.bufferReader != nil {
+		go p.bufferReader(bufCh, stopReadBufCh)
+	} else {
+		go p.readBuffer(bufCh, stopReadBufCh)
+	}
 
 	exitCh := make(chan int)
 	winSizeCh := make(chan *WinSize)

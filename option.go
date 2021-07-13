@@ -266,6 +266,13 @@ func OptionSetExitCheckerOnInput(fn ExitChecker) Option {
 	}
 }
 
+func OptionReadBuffer(fn func(chan []byte, chan struct{})) Option {
+	return func(p *Prompt) error {
+		p.bufferReader = fn
+		return nil
+	}
+}
+
 // New returns a Prompt with powerful auto-completion.
 func New(executor Executor, completer Completer, opts ...Option) *Prompt {
 	defaultWriter := NewStdoutWriter()
